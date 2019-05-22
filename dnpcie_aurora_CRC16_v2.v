@@ -75,6 +75,7 @@ module dnpcie_aurora_CRC16_v2(
     // 
     parameter CONNECT_GT_CLR = "TRUE";
     parameter SIM_SPDUP = "TRUE";
+    parameter USE_CORE = "TRUE";
     
     // XOFF internal signals
     wire axis_nfc_tx_tvalid;
@@ -137,7 +138,7 @@ module dnpcie_aurora_CRC16_v2(
                                             .m_axis_tvalid(axis_postcrc_tx_tvalid),
                                             .m_axis_tready(axis_postcrc_tx_tready));                                            
     // Main core, with the simulation select wrapper.
-    dnpcie_aurora_2_wrap #(.SIMULATION(SIM_SPDUP)) u_aurora(
+    dnpcie_aurora_2_wrap #(.SIMULATION(SIM_SPDUP),.USE_CORE(USE_CORE)) u_aurora(
                                             // AXI outbound interface
                                             .s_axi_tx_tdata(axis_postcrc_tx_tdata),
                                             .s_axi_tx_tkeep(axis_postcrc_tx_tkeep),
