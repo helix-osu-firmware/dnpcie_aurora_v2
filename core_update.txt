@@ -1,0 +1,40 @@
+# Aurora core update procedures
+
+These are instructions for updating the Aurora core inside the
+dnpcie_aurora_v2 directory. There are essentially three copies
+of the same core, each usable in different flows. All are located
+under aurora_core.
+
+* core: this is the base core used in project mode when including
+        the xci file so it can be run out-of-context.
+* core_sim: this is the base core used in project mode with
+            EXAMPLE_SIMULATION set true so that the simulation
+	    speedups in the initialization are used.
+* hdl: These are the bare HDL files to instantiate the core. If these
+       are used, don't add the XCI files.
+
+The core to be used is selected via a parameter/generic in
+dnpcie_aurora_2_CRC16_v2, which is the top level module.
+
+* USE_RAW = "TRUE"  means that the HDL-stripped version of the core will
+  be used rather than the core
+* SIM_SPDUP = "TRUE" means that the simulation speed up will be used.
+  If USE_RAW = "FALSE" this switches between the core/core_sim XCI
+  cores. If USE_RAW = "TRUE", SIM_SPDUP sets the EXAMPLE_SIMULATION
+  parameter/generic in the core module.
+
+This procedure will hopefully be automated soon, for now we leave
+it manual.
+
+## Core update procedure
+
+1. Recustomize (or generate) core/dnpcie_aurora_2.xci. This is the 'base'
+core.
+
+2. Copy core/dnpcie_aurora_2.xci to core_sim/dnpcie_aurora_2_sim.xci. Edit
+core_sim/dnpcie_aurora_2_sim.xci to change all instances of dnpcie_aurora_2
+to dnpcie_aurora_2_sim.
+
+4. Generate output products for dnpcie_aurora_2.xci.
+
+still in progress...
