@@ -50,7 +50,7 @@ module  dnpcie_aurora_tx_path_adapter( input channel_up,
                                          .m_axis_tvalid(axis_crc_tvalid),
                                          .m_axis_tready(axis_crc_tready));
       // adapt width
-      axis_dwidth_converter_0 u_width_adapter(.aclk(aclk),.aresetn(aresetn),                                  
+      dnpcie_aurora_axis_16to32 u_width_adapter(.aclk(aclk),.aresetn(aresetn),                                  
                                               .s_axis_tdata(axis_crc_tdata),
                                               .s_axis_tkeep(axis_crc_tkeep),
                                               .s_axis_tlast(axis_crc_tlast),

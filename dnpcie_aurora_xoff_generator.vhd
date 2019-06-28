@@ -36,6 +36,8 @@ architecture behave of dnpcie_aurora_xoff_generator is
         signal  nfc_xoff_stop   : std_logic;
         
         constant    CQD             : time                          := 1 ns; -- clock to Q delay for Aurora simulation        
+        constant XOFF_VAL               : std_logic_vector(3 downto 0)          := X"F";
+        constant XON_VAL                : std_logic_vector(3 downto 0)          := X"0";
 begin
         --------------------------------------------------
         -- NFC XON/XOFF logic. Start by sending XOFF when

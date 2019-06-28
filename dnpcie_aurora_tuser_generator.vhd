@@ -30,8 +30,8 @@ port(
 end dnpcie_aurora_tuser_generator;
 
 architecture behave of dnpcie_aurora_tuser_generator is
-        signal  rx_new_packet_d     : std_logic;
-        signal  rx_new_packet_q     : std_logic;
+        signal  rx_new_pkt_d     : std_logic;
+        signal  rx_new_pkt_q     : std_logic;
         
         constant    CQD             : time                          := 1 ns; -- clock to Q delay for Aurora simulation        
         -- 
