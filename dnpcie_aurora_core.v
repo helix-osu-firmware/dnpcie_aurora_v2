@@ -78,8 +78,10 @@ module dnpcie_aurora_core(
     wire axis_precrc_rx_tlast;
     wire axis_precrc_rx_tvalid;
 
+    wire aresetn_local;
+
     // 16-to-32 bit path + CRC insertion
-    dnpcie_aurora_tx_path_adapter u_tx_path(.aclk(user_clk),.aresetn(ch_reset_user_clk),.channel_up(channel_up),
+    dnpcie_aurora_tx_path_adapter u_tx_path(.aclk(user_clk),.aresetn(aresetn_local),.channel_up(channel_up),
                                             .s_axis_tdata(s_axis_tx_tdata),
                                             .s_axis_tkeep(s_axis_tx_tkeep),
                                             .s_axis_tlast(s_axis_tx_tlast),
@@ -97,6 +99,7 @@ module dnpcie_aurora_core(
                        .user_clk(user_clk),
                        .gt_refclk(gt_refclk),
                        .ext_reset(ext_reset),
+                       .aresetn(aresetn_local),
                        .s_axis_tx_tdata(axis_postcrc_tx_tdata),
                        .s_axis_tx_tkeep(axis_postcrc_tx_tkeep),
                        .s_axis_tx_tvalid(axis_postcrc_tx_tvalid),
@@ -143,7 +146,7 @@ module dnpcie_aurora_core(
 
     // receive CRC check
     aurora_dual_crc16 u_crc16(.s_axis_aclk(user_clk),
-                              .reset(ch_reset_user_clk),
+                              .aresetn(aresetn_local),
                               // input AXI4S data from Aurora
                               .s_axis_tdata(axis_precrc_rx_tdata),
                               .s_axis_tkeep(axis_precrc_rx_tkeep),

@@ -6,6 +6,8 @@ module aurora_core_wrap(
     input user_clk,
     input gt_refclk,
     input ext_reset,
+    // our AXI4S reset
+    output          aresetn,    
     // transmit path
     input [0:31]    s_axis_tx_tdata,
     input [0:3]     s_axis_tx_tkeep,
@@ -55,7 +57,7 @@ module aurora_core_wrap(
     parameter EXAMPLE_SIMULATION = 0;
 
     // unbuffered TX output
-    wire            tx_out_unbuffered;
+    wire            tx_out_clk_unbuffered;
     // reset in init_clk space
     wire            fr_gt_reset;
     // reset in user_clk space
@@ -72,6 +74,8 @@ module aurora_core_wrap(
 
     // reset
     dnpcie_aurora_reset u_reset(.init_clk(init_clk),.user_clk(user_clk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));
+    
+    assign aresetn = !ur_ch_reset;
     
     // buffer
     BUFG_GT u_tx_outclk_bufg(.O(tx_out_clk),.CE(1'b1),.CEMASK(1'b0),.CLR(1'b0),.CLRMASK(1'b0),.DIV(3'b000),.I(tx_out_clk_unbuffered));
