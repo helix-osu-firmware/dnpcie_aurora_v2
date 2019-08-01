@@ -25,6 +25,7 @@ module dnpcie_aurora_core(
     output          m_axis_rx_tlast,
     output          m_axis_crc_pass_fail_n,
     output          m_axis_crc_valid,
+    output          m_axis_length_err,
     // flow control
     input           s_axis_tx_nfc_xoff,
     output          m_axis_rx_nfc_xoff,
@@ -60,6 +61,10 @@ module dnpcie_aurora_core(
     );
     parameter   CC_FREQ_FACTOR = 5;
     parameter   EXAMPLE_SIMULATION = 0;
+    parameter   LANE = 0;
+    parameter   [7:0] DEBUG_MASK = 8'h00;
+    
+    localparam DEBUG = (DEBUG_MASK[LANE] == 1) ? "TRUE" : "FALSE";
     
     // Internal AXI4-Stream transmit bus. This is after CRC insertion
     // and width adaption. Again, insane bit ordering convention.
@@ -145,7 +150,7 @@ module dnpcie_aurora_core(
                        
 
     // receive CRC check
-    aurora_dual_crc16 u_crc16(.s_axis_aclk(user_clk),
+    aurora_dual_crc16 #(.DEBUG(DEBUG)) u_crc16(.s_axis_aclk(user_clk),
                               .aresetn(aresetn_local),
                               // input AXI4S data from Aurora
                               .s_axis_tdata(axis_precrc_rx_tdata),
@@ -160,7 +165,8 @@ module dnpcie_aurora_core(
                               .m_axis_tuser(m_axis_rx_tuser),
                               .m_axis_tlast(m_axis_rx_tlast),
                               .m_axis_crc_pass_fail_n(m_axis_crc_pass_fail_n),
-                              .m_axis_crc_valid(m_axis_crc_valid));    
+                              .m_axis_crc_valid(m_axis_crc_valid),
+                              .m_axis_length_err(m_axis_length_err));    
 
 endmodule
 
