@@ -17,6 +17,11 @@ module dnpcie_aurora_core(
     input           s_axis_tx_tvalid,
     input           s_axis_tx_tlast,
     output          s_axis_tx_tready,
+    // sigh, dug-out raw receive path for debugging
+    output [0:31]   m_axis_raw_tdata,
+    output [0:3]    m_axis_raw_tkeep,
+    output          m_axis_raw_tvalid,
+    output          m_axis_raw_tlast,    
     // 32-bit receive path
     output [0:31]   m_axis_rx_tdata,
     output [0:3]    m_axis_rx_tkeep,
@@ -147,7 +152,12 @@ module dnpcie_aurora_core(
                        .rxn(rxn),
                        .txp(txp),
                        .txn(txn));
-                       
+    
+    // tuser is generated, so we don't need to grab it.                   
+    assign m_axis_raw_tdata = axis_precrc_rx_tdata;
+    assign m_axis_raw_tkeep = axis_precrc_rx_tkeep;
+    assign m_axis_raw_tvalid = axis_precrc_rx_tvalid;
+    assign m_axis_raw_tlast = axis_precrc_rx_tlast;
 
     // receive CRC check
     aurora_dual_crc16 #(.DEBUG(DEBUG)) u_crc16(.s_axis_aclk(user_clk),

@@ -14,6 +14,11 @@ module aurora_core_wrap(
     input           s_axis_tx_tvalid,
     input           s_axis_tx_tlast,
     output          s_axis_tx_tready,
+    // sigh, dug-out raw receive path for debugging
+    output [0:31]   m_axis_raw_tdata,
+    output [0:3]    m_axis_raw_tkeep,
+    output          m_axis_raw_tvalid,
+    output          m_axis_raw_tlast,        
     // receive path
     output [0:31]   m_axis_rx_tdata,
     output [0:3]    m_axis_rx_tkeep,
@@ -69,8 +74,12 @@ module aurora_core_wrap(
     
     wire            m_axis_rx_snf;
     wire    [0:3]   m_axis_rx_nb;
-    // don't do anything for the receive XOFF path yet
-    assign          m_axis_rx_nfc_xoff = 0;
+    
+    // OK: So the Aurora core handles XOFF entirely internally, converting
+    // it into TREADY behavior. So we just use tready here, gated
+    // by channel up. If an indefinite XOFF is asserted and *stays* asserted, this will
+    // force us to go "stop" mode.
+    assign          m_axis_rx_nfc_xoff = !s_axis_tx_tready && channel_up;
 
     // reset
     dnpcie_aurora_reset u_reset(.init_clk(init_clk),.user_clk(user_clk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));
