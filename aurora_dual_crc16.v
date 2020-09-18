@@ -12,6 +12,7 @@
 module aurora_dual_crc16(
         input s_axis_aclk,
         input aresetn,
+        input channel_up,
         input [31:0] s_axis_tdata,
         input [3:0] s_axis_tkeep,
         input s_axis_tuser,
@@ -40,7 +41,7 @@ module aurora_dual_crc16(
         wire [15:0] calculated_crc;
         
         always @(posedge s_axis_aclk) begin
-            if (!aresetn) state <= IDLE;
+            if (!aresetn || !channel_up) state <= IDLE;
             else case (state)
                 IDLE: if (s_axis_tvalid) state <= DATA_AVAIL;
                 DATA_AVAIL: if (!s_axis_tvalid) state <= DATA_WAIT;

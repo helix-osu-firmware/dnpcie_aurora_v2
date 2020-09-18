@@ -162,6 +162,7 @@ module dnpcie_aurora_core(
     // receive CRC check
     aurora_dual_crc16 #(.DEBUG(DEBUG)) u_crc16(.s_axis_aclk(user_clk),
                               .aresetn(aresetn_local),
+                              .channel_up(channel_up),
                               // input AXI4S data from Aurora
                               .s_axis_tdata(axis_precrc_rx_tdata),
                               .s_axis_tkeep(axis_precrc_rx_tkeep),
