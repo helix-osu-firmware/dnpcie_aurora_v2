@@ -40,6 +40,7 @@ module dnpcie_aurora_core(
     output          soft_err,
     output          channel_up,
     output          lane_up,
+    output          link_reset_out,
         // system interface
     output          tx_out_clk,
     input           pll_not_locked,
@@ -130,7 +131,7 @@ module dnpcie_aurora_core(
                        .soft_err(soft_err),
                        .channel_up(channel_up),
                        .lane_up(lane_up),
-                       
+                       .link_reset_out(link_reset_out),
                        .tx_out_clk(tx_out_clk),
                        .pll_not_locked(pll_not_locked),
                        .power_down(power_down),

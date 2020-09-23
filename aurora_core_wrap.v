@@ -44,6 +44,7 @@ module aurora_core_wrap(
     output          rx_resetdone,
     output          bufg_gt_clr,
     output          gt_powergood,
+    output          link_reset_out,
     // DRP interface
     input           drpclk,
     input [8:0]     drpaddr,
@@ -143,6 +144,7 @@ module aurora_core_wrap(
                         .pll_not_locked(pll_not_locked),
                         .tx_resetdone_out(tx_resetdone),
                         .rx_resetdone_out(rx_resetdone),
+                        .link_reset_out(link_reset_out),
                         .gt0_drpaddr_in(drpaddr),
                         .gt0_drpdi_in(drpdi),
                         .gt0_drpdo_out(drpdo),
