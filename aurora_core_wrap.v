@@ -5,6 +5,7 @@ module aurora_core_wrap(
     input init_clk,
     input user_clk,
     input gt_refclk,
+    input gt_bufclk,
     input ext_reset,
     // our AXI4S reset
     output          aresetn,    
@@ -82,8 +83,9 @@ module aurora_core_wrap(
     // force us to go "stop" mode.
     assign          m_axis_rx_nfc_xoff = !s_axis_tx_tready && channel_up;
 
-    // reset
-    dnpcie_aurora_reset u_reset(.init_clk(init_clk),.user_clk(user_clk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));
+    // reset. This is all kinds of screwed up right now, but whatever.
+    dnpcie_aurora_reset u_reset(.init_clk(init_clk),.user_clk(user_clk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));    
+    //dnpcie_aurora_reset_v2 u_reset(.init_clk(init_clk),.user_clk(user_clk),.buf_refclk(gt_bufclk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));
     
     assign aresetn = !ur_ch_reset;
     

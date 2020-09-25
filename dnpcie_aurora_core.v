@@ -10,6 +10,7 @@ module dnpcie_aurora_core(
     input init_clk,
     input user_clk,
     input gt_refclk,
+    input gt_bufclk,
     input ext_reset,
     // 16-bit transmit path.
     input [0:15]    s_axis_tx_tdata,
@@ -109,6 +110,7 @@ module dnpcie_aurora_core(
                        .init_clk(init_clk),
                        .user_clk(user_clk),
                        .gt_refclk(gt_refclk),
+                       .gt_bufclk(gt_bufclk),
                        .ext_reset(ext_reset),
                        .aresetn(aresetn_local),
                        .s_axis_tx_tdata(axis_postcrc_tx_tdata),
