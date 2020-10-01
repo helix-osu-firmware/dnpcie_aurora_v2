@@ -107,8 +107,8 @@ begin
     --------------------------------------------------
     fsm_pcs : process(init_clk)
     begin
-        if init_clk'event and init_clk='1' then
-            if ext_reset then
+        if rising_edge(init_clk) then
+            if ext_reset = '1' then
                 fsm_gt_reset         <= '1';
                 fsm_aurora_reset     <= '1';
                 fsm_done             <= '0';
@@ -122,7 +122,7 @@ begin
                     fsm_aurora_reset <= '1';
                     fsm_done         <= '0';                    
                     cycle_ctr_ld     <= '1';
-                    if second_flag then
+                    if second_flag = '1' then
                         second_flag_clr  <= '0';
                         rst_fsm_cs  <= PRECTRS;
                     else
@@ -142,7 +142,7 @@ begin
                     fsm_done         <= '0';
                     second_flag_clr  <= '0';
                     cycle_ctr_ld     <= '0';
-                    if cycle_ctr_tc then
+                    if cycle_ctr_tc = '1' then
                         rst_fsm_cs  <= CHANS;
                     else
                         rst_fsm_cs  <= PRECTRS;
@@ -160,7 +160,7 @@ begin
                     fsm_done         <= '0';
                     second_flag_clr  <= '0';
                     cycle_ctr_ld     <= '0';
-                    if cycle_ctr_tc then
+                    if cycle_ctr_tc = '1' then
                         rst_fsm_cs  <= DONES;
                     else
                         rst_fsm_cs  <= PSTCTRS;
@@ -189,14 +189,14 @@ begin
     test_pcs : process(init_clk)
     begin
         if (init_clk'event and init_clk='1') then
-            if second_flag_clr then
+            if second_flag_clr = '1' then
                 second_flag <= '0';
                 lgc_gt_reset <= '1';
                 lgc_aurora_reset <= '1';
             else
                 lgc_gt_reset     <= fsm_gt_reset and (not second_flag);
                 lgc_aurora_reset <= fsm_aurora_reset;
-                if fsm_done then
+                if fsm_done = '1' then
                     second_flag <= '1';
                 end if;
             end if;
@@ -208,13 +208,17 @@ begin
     ------------------------------------------------------------------
     ctr_pcs : process(init_clk)
     begin
-        if (init_clk'event and init_clk='1') then
-            if cycle_ctr_ld then
+        if rising_edge(init_clk) then
+            if cycle_ctr_ld = '1' then
                 cycle_ctr <= (others => '1');
             else
                 cycle_ctr <= cycle_ctr - 1;
             end if;
-            cycle_ctr_tc <= '1' when cycle_ctr=0 else '0';
+            if cycle_ctr=0 then
+                cycle_ctr_tc <= '1';
+            else
+                cycle_ctr_tc <= '0';
+            end if;
         end if;
     end process;
 
