@@ -52,6 +52,8 @@ module dnpcie_aurora_core(
     output          rx_resetdone,
     output          bufg_gt_clr,
     output          gt_powergood,
+    input [15:0]    gt_reset_len,
+    output          reset_busy,
     // DRP interface
     input           drpclk,
     input [8:0]     drpaddr,
@@ -143,6 +145,8 @@ module dnpcie_aurora_core(
                        .rx_resetdone(rx_resetdone),
                        .bufg_gt_clr(bufg_gt_clr),
                        .gt_powergood(gt_powergood),
+                       .reset_busy(reset_busy),
+                       .gt_reset_len(gt_reset_len),
                        .drpclk(drpclk),
                        .drpaddr(drpaddr),
                        .drpdi(drpdi),

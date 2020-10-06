@@ -46,6 +46,8 @@ module aurora_core_wrap(
     output          bufg_gt_clr,
     output          gt_powergood,
     output          link_reset_out,
+    input [15:0]    gt_reset_len,
+    output          reset_busy,
     // DRP interface
     input           drpclk,
     input [8:0]     drpaddr,
@@ -84,7 +86,10 @@ module aurora_core_wrap(
     assign          m_axis_rx_nfc_xoff = !s_axis_tx_tready && channel_up;
 
     // reset. This is all kinds of screwed up right now, but whatever.
-    dnpcie_aurora_reset u_reset(.init_clk(init_clk),.user_clk(user_clk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));    
+    dnpcie_aurora_reset_v2 u_reset(.init_clk(init_clk),.user_clk(user_clk),.buf_refclk(gt_bufclk),
+                                   .hotplug_wait_i( {16'h0000, gt_reset_len, 16'hFFFF } ),
+                                   .reset_busy(reset_busy),
+                                   .ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));    
     //dnpcie_aurora_reset_v2 u_reset(.init_clk(init_clk),.user_clk(user_clk),.buf_refclk(gt_bufclk),.ext_reset(ext_reset),.gt_reset(fr_gt_reset),.chan_reset(ur_ch_reset));
     
     assign aresetn = !ur_ch_reset;
