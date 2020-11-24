@@ -16,10 +16,24 @@ module dnpcie_aurora_reset_v2( input        user_clk,
 			       output 	    chan_reset,
 			       output 	    reset_busy );
 
+   // We need to add a *very* long powerup wait here, because the goddamn programmable oscillators
+   // don't settle for 20 ms, minimum, and obviously when we go away, the oscillator will drift
+   // to the 156.25 MHz frequency. So technically everything here might be HORRIBLE.
+   // 20 ms at 200 MHz is 4M.
+   localparam [47:0] POWERON_WAIT = 4000000;
    // we're __faster__ than user_clk, so we need to wait longer
    localparam [47:0] GT_RESET_WAIT = 162;
    // Wait to ensure hotplug count expires on link partner.
    localparam [47:0] INIT_CLK_FREQ = 200000000;
+    
+   wire exit_poweron;
+   wire not_in_poweron;
+
+   dsp_counter_terminal_count #(.FIXED_TCOUNT("TRUE"),.FIXED_TCOUNT_VALUE(POWERON_WAIT))
+       u_poweron_counter(.clk_i(init_clk),.rst_i(not_in_poweron),.count_i(1'b1),
+			  .tcount_i(),
+			  .update_tcount_i(),
+			  .tcount_reached_o(exit_poweron));
 
    wire 			      buf_refclk_toggling;
    (* ASYNC_REG = "TRUE" *)
@@ -94,7 +108,7 @@ module dnpcie_aurora_reset_v2( input        user_clk,
       // State machine
       case (state)
 	POWERON: state <= `DLYFF POWERON_WAIT_0;
-	POWERON_WAIT_0: state <= `DLYFF POWERON_WAIT_1;
+	POWERON_WAIT_0: if (exit_poweron) state <= `DLYFF POWERON_WAIT_1;
 	POWERON_WAIT_1: state <= `DLYFF POWERON_WAIT_2;
 	POWERON_WAIT_2: state <= `DLYFF WAIT_POWERON_REFCLK;
 	WAIT_POWERON_REFCLK: if (buf_refclk_toggling_initclk[1]) state <= `DLYFF WAIT_POWERON_0;
@@ -134,6 +148,8 @@ module dnpcie_aurora_reset_v2( input        user_clk,
 			  .tcount_i(hotplug_wait_i),
 			  .update_tcount_i(state == RESET_START),
 			  .tcount_reached_o(hp_reset_wait_reached));
+   
+   assign not_in_poweron = (state != POWERON) && (state != POWERON_WAIT_1);   
    
    assign count_to_gt_reset = (state == RESET_WAIT_TO_GTRESET);
    assign count_to_hp_reset = (state == RESET_WAIT_ONE_SECOND);
