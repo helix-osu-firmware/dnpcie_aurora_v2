@@ -149,7 +149,7 @@ module dnpcie_aurora_reset_v2( input        user_clk,
 			  .update_tcount_i(state == RESET_START),
 			  .tcount_reached_o(hp_reset_wait_reached));
    
-   assign not_in_poweron = (state != POWERON) && (state != POWERON_WAIT_1);   
+   assign not_in_poweron = (state != POWERON) && (state != POWERON_WAIT_0);   
    
    assign count_to_gt_reset = (state == RESET_WAIT_TO_GTRESET);
    assign count_to_hp_reset = (state == RESET_WAIT_ONE_SECOND);
