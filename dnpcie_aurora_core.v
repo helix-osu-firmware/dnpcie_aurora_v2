@@ -35,6 +35,10 @@ module dnpcie_aurora_core(
     // flow control
     input           s_axis_tx_nfc_xoff,
     output          m_axis_rx_nfc_xoff,
+    // HACKY BULLSHIT
+    input           busy_reset,
+    input           going_full,
+    output          trig,
     // errors
     output          frame_err,
     output          hard_err,
@@ -72,6 +76,7 @@ module dnpcie_aurora_core(
     parameter   EXAMPLE_SIMULATION = 0;
     parameter   LANE = 0;
     parameter   [7:0] DEBUG_MASK = 8'h00;
+    parameter   XOFF_BUSY = "FALSE";
     
     localparam DEBUG = (DEBUG_MASK[LANE] == 1) ? "TRUE" : "FALSE";
     
@@ -108,7 +113,8 @@ module dnpcie_aurora_core(
                                             .m_axis_tready(axis_postcrc_tx_tready));
 
     aurora_core_wrap #(.CC_FREQ_FACTOR(CC_FREQ_FACTOR),
-                       .EXAMPLE_SIMULATION(EXAMPLE_SIMULATION)) u_core_wrapper(
+                       .EXAMPLE_SIMULATION(EXAMPLE_SIMULATION),
+                       .XOFF_BUSY(XOFF_BUSY)) u_core_wrapper(
                        .init_clk(init_clk),
                        .user_clk(user_clk),
                        .gt_refclk(gt_refclk),
@@ -130,6 +136,10 @@ module dnpcie_aurora_core(
                        .s_axis_tx_nfc_xoff(s_axis_tx_nfc_xoff),
                        .m_axis_rx_nfc_xoff(m_axis_rx_nfc_xoff),
                        
+                       .busy_reset(busy_reset),
+                       .going_full(going_full),
+                       .trig(trig),
+                                              
                        .frame_err(frame_err),
                        .hard_err(hard_err),
                        .soft_err(soft_err),

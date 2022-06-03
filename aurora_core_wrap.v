@@ -29,6 +29,12 @@ module aurora_core_wrap(
     // flow control
     input           s_axis_tx_nfc_xoff,
     output          m_axis_rx_nfc_xoff,
+    // HACKY BULLSHIT
+    // ONLY USED IF XOFF_BUSY IS TRUE
+    input           busy_reset,
+    input           going_full,
+    output          trig,
+    
     // errors
     output          frame_err,
     output          hard_err,
@@ -64,6 +70,7 @@ module aurora_core_wrap(
     );
     parameter CC_FREQ_FACTOR = 5;
     parameter EXAMPLE_SIMULATION = 0;
+    parameter XOFF_BUSY = "FALSE";
 
     // unbuffered TX output
     wire            tx_out_clk_unbuffered;
@@ -76,8 +83,14 @@ module aurora_core_wrap(
     wire            s_axis_nfc_ack;
     wire    [0:3]   s_axis_nfc_nb;
     
+    
+    // OK: This shit maps to tvalid/tdata.
+    // Let's see if we can sneaky-sneak steal a way to do it.
     wire            m_axis_rx_snf;
     wire    [0:3]   m_axis_rx_nb;
+    
+    assign m_nfc_tvalid = m_axis_rx_snf;
+    assign m_nfc_tdata = m_axis_rx_nb;
     
     // OK: So the Aurora core handles XOFF entirely internally, converting
     // it into TREADY behavior. So we just use tready here, gated
@@ -104,11 +117,24 @@ module aurora_core_wrap(
                                               .m_axi_rx_tlast(m_axis_rx_tlast),
                                               .m_axi_rx_tuser(m_axis_rx_tuser));
     // generate XOFF                                                  
-    dnpcie_aurora_xoff_generator u_xoff_gen(.user_clk(user_clk),.ur_ch_reset(ur_ch_reset),
-                                            .s_axi_tx_nfc_xoff(s_axis_tx_nfc_xoff),
-                                            .s_axi_nfc_req(s_axis_nfc_req),
-                                            .s_axi_nfc_ack(s_axis_nfc_ack),
-                                            .s_axi_nfc_nb(s_axis_nfc_nb));
+    generate
+        if (XOFF_BUSY == "TRUE") begin : XOFFBUSY
+            xoff_busy_generator u_xoffbusy_gen(.aclk(user_clk),.aresetn(!busy_reset),
+                                               .going_full(going_full),
+                                               .trig(trig),
+                                               .m_axi_nfc_tdata(s_axis_nfc_nb),
+                                               .m_axi_nfc_tvalid(s_axis_nfc_req),
+                                               .m_axi_nfc_tready(s_axis_nfc_ack),
+                                               .s_axi_nfc_tvalid(m_axis_rx_snf),
+                                               .s_axi_nfc_tdata(m_axis_rx_nb));
+        end else begin : XOFF
+            dnpcie_aurora_xoff_generator u_xoff_gen(.user_clk(user_clk),.ur_ch_reset(ur_ch_reset),
+                                                    .s_axi_tx_nfc_xoff(s_axis_tx_nfc_xoff),
+                                                    .s_axi_nfc_req(s_axis_nfc_req),
+                                                    .s_axi_nfc_ack(s_axis_nfc_ack),
+                                                    .s_axi_nfc_nb(s_axis_nfc_nb));
+        end
+    endgenerate
     // instantiate core
     aurora_8b10b_core #(.CC_FREQ_FACTOR(CC_FREQ_FACTOR),.EXAMPLE_SIMULATION(EXAMPLE_SIMULATION))
                 u_core(
